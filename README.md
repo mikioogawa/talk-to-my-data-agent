@@ -1,9 +1,6 @@
-# "Talk to my data" agent
+# "データと会話する" エージェント
 
-The "Talk to my data" Agent provides a talk-to-your-data experience. Upload a .csv, ask a question, and
-the agent recommends business analyses. It then produces charts and tables to
-answer your question (including the source code). This experience is paired with MLOps to host, monitor,
-and govern the components.
+「データと会話する」エージェントは、あなたがデータと対話できる環境を提供します。CSVファイルをアップロードし、質問をすると、エージェントはビジネス分析を提案します。その後、質問に答えるためのグラフや表（ソースコードを含む）を作成します。この体験は、MLOpsと連携し、コンポーネントのホスティング、監視、管理を行います。
 
 > [!WARNING]
 > Application templates are intended to be starting points that provide guidance on how to develop, serve, and maintain AI applications.
@@ -28,66 +25,66 @@ and govern the components.
 
 ## Setup
 
-Before proceeding, ensure you have access to the required credentials and services. This template is pre-configured to use an Azure OpenAI endpoint and Snowflake Database credentials. To run the template as-is, you will need access to Azure OpenAI (leverages `gpt-4o` by default). 
+開始する前に、必要な資格情報とサービスへのアクセス権があることを確認してください。このテンプレートは、Azure OpenAIエンドポイントとSnowflakeデータベースの資格情報を使用するように事前に構成されています。テンプレートをそのまま実行するには、Azure OpenAI（デフォルトで`gpt-4o`を活用）へのアクセス権が必要です。
 
-Codespace users can **skip steps 1 and 2**. For local development, follow all of the following steps.
+Codespacesユーザーは**ステップ1と2をスキップ**できます。ローカル開発の場合は、以下のすべてのステップに従ってください。
 
-1. If `pulumi` is not already installed, install the CLI following instructions [here](https://www.pulumi.com/docs/iac/download-install/).
-   After installing for the first time, restart your terminal and run:
+1. `pulumi`がまだインストールされていない場合は、[こちら](https://www.pulumi.com/docs/iac/download-install/)の指示に従ってCLIをインストールします。
+   初めてインストールした後は、ターミナルを再起動し、以下を実行します。
    ```bash
-   pulumi login --local  # omit --local to use Pulumi Cloud (requires separate account)
+   pulumi login --local  # Pulumi Cloudを使用する場合は--localを省略（別途アカウントが必要）
    ```
 
-2. Clone the template repository.
+2. テンプレートリポジトリをクローンします。
 
    ```bash
    git clone https://github.com/datarobot-community/talk-to-my-data-agent.git
    cd talk-to-my-data-agent
    ```
 
-3. Rename the file `.env.template` to `.env` in the root directory of the repo and populate your credentials.
+3. リポジトリのルートディレクトリにある`.env.template`ファイルを`.env`に名前変更し、資格情報を入力します。
 
    ```bash
    DATAROBOT_API_TOKEN=...
-   DATAROBOT_ENDPOINT=...  # e.g. https://app.datarobot.com/api/v2
+   DATAROBOT_ENDPOINT=...  # e.g. https://app.jp.datarobot.com/api/v2
    OPENAI_API_KEY=...
    OPENAI_API_VERSION=...  # e.g. 2024-02-01
    OPENAI_API_BASE=...  # e.g. https://your_org.openai.azure.com/
    OPENAI_API_DEPLOYMENT_ID=...  # e.g. gpt-4o
    PULUMI_CONFIG_PASSPHRASE=...  # Required. Choose your own alphanumeric passphrase to be used for encrypting pulumi config
    ```
-   Use the following resources to locate the required credentials:
+  必要な資格情報の場所については、以下のリソースを参照してください:
    - **DataRobot API Token**: Refer to the *Create a DataRobot API Key* section of the [DataRobot API Quickstart docs](https://docs.datarobot.com/en/docs/api/api-quickstart/index.html#create-a-datarobot-api-key).
    - **DataRobot Endpoint**: Refer to the *Retrieve the API Endpoint* section of the same [DataRobot API Quickstart docs](https://docs.datarobot.com/en/docs/api/api-quickstart/index.html#retrieve-the-api-endpoint).
    - **LLM Endpoint and API Key**: Refer to the [Azure OpenAI documentation](https://learn.microsoft.com/en-us/azure/ai-services/openai/chatgpt-quickstart?tabs=command-line%2Cjavascript-keyless%2Ctypescript-keyless%2Cpython-new&pivots=programming-language-python#retrieve-key-and-endpoint).
 
-4. In a terminal, run:
+4. ターミナルで、以下を実行します:
    ```bash
    python quickstart.py YOUR_PROJECT_NAME  # Windows users may have to use `py` instead of `python`
    ```
-   Python 3.9+ is required.
+   Python 3.9以降が必要です。
 
 
-Advanced users desiring control over virtual environment creation, dependency installation, environment variable setup
-and `pulumi` invocation see [here](#setup-for-advanced-users).
+仮想環境の作成、依存関係のインストール、環境変数の設定、および`pulumi`の呼び出しを制御したい高度なユーザーは、
+[こちら](#setup-for-advanced-users)を参照してください。
 
 ## Architecture overview
 
 ![image](https://github.com/user-attachments/assets/2ca66231-9321-48fe-abdb-f2d35687dff6)
 
 
-App templates contain three families of complementary logic:
+アプリテンプレートには、3つの補完的なロジックファミリーが含まれています:
 
-- **AI logic**: Necessary to service AI requests and produce predictions and completions.
+- **AI logic**: AIリクエストを処理し、予測と完了を生成するために必要です。
   ```
   deployment_*/  # Chat agent model
   ```
-- **App Logic**: Necessary for user consumption; whether via a hosted front-end or integrating into an external consumption layer.
+- **App Logic**: ホストされたフロントエンド経由でも、外部の利用層に統合する場合でもユーザーが利用するために必要です。
   ```
   frontend/  # Streamlit frontend
   utils/  # App business logic & runtime helpers
   ```
-- **Operational Logic**: Necessary to activate DataRobot assets.
+- **Operational Logic**: DataRobotアセットをアクティブ化するために必要です。
   ```
   infra/__main__.py  # Pulumi program for configuring DataRobot to serve and monitor AI and app logic
   infra/  # Settings for resources and assets created in DataRobot
@@ -95,12 +92,12 @@ App templates contain three families of complementary logic:
 
 ## Why build AI Apps with DataRobot app templates?
 
-App Templates transform your AI projects from notebooks to production-ready applications. Too often, getting models into production means rewriting code, juggling credentials, and coordinating with multiple tools and teams just to make simple changes. DataRobot's composable AI apps framework eliminates these bottlenecks, letting you spend more time experimenting with your ML and app logic and less time wrestling with plumbing and deployment.
-- Start building in minutes: Deploy complete AI applications instantly, then customize the AI logic or the front-end independently (no architectural rewrites needed).
-- Keep working your way: Data scientists keep working in notebooks, developers in IDEs, and configs stay isolated. Update any piece without breaking others.
-- Iterate with confidence: Make changes locally and deploy with confidence. Spend less time writing and troubleshooting plumbing and more time improving your app.
+アプリテンプレートは、AIプロジェクトをノートブックから本番環境対応のアプリケーションに変えます。モデルを本番環境に移行するには、コードの書き換え、資格情報の管理、単純な変更を行うだけでも複数のツールとチームとの連携が必要になることがよくあります。DataRobotの構成可能なAIアプリフレームワークは、これらのボトルネックを解消し、接続やデプロイに苦労する時間を減らし、MLとアプリロジックの実験に時間を費やすことができます。
+- 数分で構築を開始: 完全なAIアプリケーションを即座にデプロイし、その後、AIロジックまたはフロントエンドを個別にカスタマイズできます（アーキテクチャの書き換えは不要）。
+- 自分のやり方を維持: データサイエンティストはノートブックで、開発者はIDEで作業を続け、構成は分離されたままになります。他の部分を壊すことなく、任意の部分を更新できます。
+- 安心して反復処理: ローカルで変更を加え、自信を持ってデプロイできます。配管の記述とトラブルシューティングにかかる時間を減らし、アプリの改善に時間を費やすことができます。
 
-Each template provides an end-to-end AI architecture, from raw inputs to deployed application, while remaining highly customizable for specific business requirements.
+各テンプレートは、生データの入力からデプロイされたアプリケーションまで、エンドツーエンドのAIアーキテクチャを提供し、特定のビジネス要件に合わせて高度にカスタマイズ可能です。
 
 ## Data privacy
 Your data privacy is important to us. Data handling is governed by the DataRobot [Privacy Policy](https://www.datarobot.com/privacy/), please review before using your own data with DataRobot.
@@ -123,16 +120,16 @@ Your data privacy is important to us. Data handling is governed by the DataRobot
 
 #### No database
 
-To remove the database connection completely:
+データベース接続を完全に削除するには:
 
-1. Modify the `DATABASE_CONNECTION_TYPE` setting in `infra/settings_database.py` by changing `DATABASE_CONNECTION_TYPE="snowflake"` to `DATABASE_CONNECTION_TYPE="no_database"`.
+1. `infra/settings_database.py`の`DATABASE_CONNECTION_TYPE`設定を`DATABASE_CONNECTION_TYPE="snowflake"`から `DATABASE_CONNECTION_TYPE="no_database"`に変更します。
  
 #### BigQuery
 
-The Talk to my Data Agent supports connecting to BigQuery.
-1. Modify the `DATABASE_CONNECTION_TYPE` setting in `infra/settings_database.py` by changing `DATABASE_CONNECTION_TYPE=snowflake` to `DATABASE_CONNECTION_TYPE=bigquery`. 
-2. Provide the required google credentials in `.env` dependent on your choice.  Ensure that GOOGLE_DB_SCHEMA is also populated in `.env`.
-3. Run `pulumi up` to update your stack (Or rerun your quickstart).
+データと会話するエージェントは、BigQueryへの接続をサポートしています.
+1. `infra/settings_database.py`の`DATABASE_CONNECTION_TYPE`設定を`DATABASE_CONNECTION_TYPE="snowflake"`から`DATABASE_CONNECTION_TYPE=bigquery`に変更します. 
+2. 選択に応じて、`.env`に必要なGoogle資格情報を入力します。`.env`にGOOGLE_DB_SCHEMAも入力されていることを確認してください.
+3. `pulumi up`を実行してスタックを更新します（またはクイックスタートを再実行します）。
       ```bash
       source set_env.sh  # On windows use `set_env.bat`
       pulumi up
@@ -140,9 +137,9 @@ The Talk to my Data Agent supports connecting to BigQuery.
 
 ## Share results
 
-1. Log into the DataRobot application.
-2. Navigate to **Registry > Applications**.
-3. Navigate to the application you want to share, open the actions menu, and select **Share** from the dropdown.
+1. DataRobotアプリケーションにログインします。
+2. **Registry > Applications**に移動します。
+3. 共有したいアプリケーションに移動し、アクションメニューを開き、ドロップダウンから**Share**を選択します。
 
 ## Delete all provisioned resources
 
@@ -151,7 +148,7 @@ pulumi down
 ```
 
 ## Setup for advanced users
-For manual control over the setup process adapt the following steps for MacOS/Linux to your environment:
+設定プロセスを手動で制御するには、以下の手順をMacOS/Linux環境に合わせて調整してください:
 ```bash
 python -m venv .venv
 source .venv/bin/activate
@@ -160,7 +157,7 @@ source set_env.sh
 pulumi stack init YOUR_PROJECT_NAME
 pulumi up 
 ```
-e.g. for Windows/conda/cmd.exe this would be:
+例：Windows/conda/cmd.exeの場合:
 ```bash
 conda create --prefix .venv pip
 conda activate .\.venv
@@ -169,4 +166,4 @@ set_env.bat
 pulumi stack init YOUR_PROJECT_NAME
 pulumi up
 ```
-For projects that will be maintained, DataRobot recommends forking the repo so upstream fixes and improvements can be merged in the future.
+こちらのリポジトリは元のDataRobotプロジェクトからフォークしたものなので最新の機能が反映されていない可能性があります。
