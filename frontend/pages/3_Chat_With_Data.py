@@ -102,10 +102,10 @@ def clear_chat() -> None:
 
 # Sidebar with New Chat button only
 with st.sidebar:
-    st.title("Chat Controls")
+    st.title("チャットコントロール")
 
     # Add New Chat button with callback
-    st.button("New Chat", on_click=clear_chat, use_container_width=True)
+    st.button("新しいチャット", on_click=clear_chat, use_container_width=True)
 
 
 # Wrap API functions with logging
@@ -276,7 +276,7 @@ class UnifiedRenderer:
             or exception.exception_history is None
             or len(exception.exception_history) == 0
         ):
-            st.error("An error occurred during analysis. Please retry")
+            st.error("分析中にエラーが発生しました。再試行してください")
             return
         last_exception = exception.exception_history[-1]
         st.error(f"Error: {last_exception.exception_str}")
@@ -314,7 +314,7 @@ async def run_complete_analysis(
             try:
                 enhanced_message = await rephrase_message(chat_request)
             except ValidationError:
-                st.error("LLM Error, please retry")
+                st.error("LLMエラー、再試行してください")
                 return
 
             interpretation_message = AnalystChatMessage(
@@ -332,8 +332,8 @@ async def run_complete_analysis(
             assistant_message = interpretation_message.model_copy()
 
             # Run main analysis
-            with st.spinner("Thinking..."):
-                with st.spinner("Generating Code..."):
+            with st.spinner("考え中..."):
+                with st.spinner("コード生成中..."):
                     try:
                         is_database = session_state.data_source == DataSource.DATABASE
                         analysis_result = await (
@@ -373,7 +373,7 @@ async def run_complete_analysis(
                     #     return
                 # Run concurrent analyses if we have initial results
                 if analysis_result and analysis_result.dataset:
-                    with st.spinner("Generating Insights..."):
+                    with st.spinner("インサイトを生成中..."):
                         try:
                             # Prepare both requests
                             chart_request = RunChartsRequest(
@@ -448,7 +448,7 @@ async def main() -> None:
 
     if not st.session_state.datasets:
         st.info(
-            "Please upload and process data using the sidebar before starting the chat"
+            "チャットを開始する前に、サイドバーを使用してデータをアップロードして処理してください"
         )
     else:
         # Render existing chat history
@@ -469,7 +469,7 @@ async def main() -> None:
                 renderer.set_containers(containers)
                 renderer.render_message(message, within_chat_context=True)
         # Handle new chat input
-        if question := st.chat_input("Ask a question about your data"):
+        if question := st.chat_input("データについて質問してください"):
             # Create and add user message
             user_message = AnalystChatMessage(
                 role="user", content=question, components=[]

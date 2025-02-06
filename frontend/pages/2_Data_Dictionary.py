@@ -34,15 +34,15 @@ st.set_page_config(page_title="Data Dictionary", page_icon=PAGE_ICON, layout="wi
 apply_custom_css()
 
 st.image(get_page_logo(), width=200)
-st.title("Dictionary")
+st.title("データディクショナリー")
 
 if (
     "data_dictionaries" not in st.session_state
     or len(st.session_state.data_dictionaries) == 0
 ):
-    logger.warning("No data dictionaries found in session state")
+    logger.warning("このセッションではデータディクショナリーが見つかりませんでした")
     st.info(
-        "Please upload and process data from the main page to view the data dictionary"
+        "データディクショナリーを表示するには、メインページからデータをアップロードして処理を実行してください。"
     )
 else:
     # Add debug logging
@@ -96,17 +96,17 @@ else:
 with st.sidebar:
     st.markdown(
         """
-    ### Using the Data Dictionary
+    ### データディクショナリーの使用方法
     
-    The data dictionary provides detailed information about each column in your datasets:
+    データディクショナリーは、データセット内の各列に関する詳細な情報を提供します:
     
-    - **Column**: The name of the column
-    - **Data Type**: The type of data in the column
-    - **Description**: A description of what the data represents
+    - **Column**: 列の名前
+    - **Data Type**: 列内のデータタイプ
+    - **Description**: データが表す内容の説明
     
-    You can:
-    - Edit descriptions directly in the table
-    - Download the dictionary as CSV
-    - Use the information to better understand your data
+    次の操作を実行できます:
+    - 表内で説明を直接編集する
+    - データディクショナリーをCSVとしてダウンロードする
+    - 情報を使用してデータをより深く理解する
     """
     )

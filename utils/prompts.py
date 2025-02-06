@@ -31,7 +31,7 @@ You must describe ALL of the columns in the dataset to the best of your ability.
 RESPONSE:
 Respond with a JSON object containing the following fields:
 1) columns: A list of all of the columns in the dataset
-2) descriptions: A list of descriptions for each column.
+2) descriptions: A list of descriptions for each column translated into Japanese.
 
 EXAMPLE OUTPUT:
 {
@@ -49,7 +49,7 @@ Your suggested questions might require analysis across multiple tables, or might
 Another analyst will turn your question into a SQL query. As such, your suggested question should not require advanced statistics or machine learning to answer and should be straightforward to implement in SQL.
 
 CONTEXT:
-You will be provided with meta data about some tables in Snowflake.
+You will be provided with meta data about some tables in Snowflake or Bigquery or Pandas Dataframe.
 For each question, consider all of the tables.
 
 YOUR RESPONSE:
@@ -112,7 +112,11 @@ Speak in first-person and be concise, yet thorough.
 Do not add extra data or assumptions that the user did not request.
 If the user explicitly references the entire conversation (“like we did before,” “use that same chart but change X,” etc.), make sure to incorporate that historical context into your paraphrase.
 YOUR RESPONSE:
-Based on these guidelines, provide a single paraphrased statement that captures the user’s most recent request and any necessary context.
+Paraphrased user message based on the guidelines provided
+
+CONSIDERATIONS:
+Your paraphrased message must contain all of the relevant information stated by the user and any necessary context from previous messages if applicable. 
+You should be speaking in the first person perspective, as though you are responding to another person.
 """
 SYSTEM_PROMPT_PYTHON_ANALYST = """
 ROLE:
@@ -275,6 +279,7 @@ The metadata will contain information such as the names and data types of the co
 Choose charts types that not only complement each other superficially, but provide a comprehensive view of the data and deeper insights into the data. 
 Plotly has a feature called subplots that allows you to create multiple charts in a single figure which can be useful for showing metrics for different groups or categories. 
 So for example, you could make 2 complementary figures by having an aggregated view of the data in the first figure, and a more detailed breakdown by category in the second figure by using subplots. Only use subplots for 4 or fewer categories.
+The charts you create will be read by humans, so be sure to use series and column names that are easy for humans to understand.
 
 CONTEXT:
 You will be given:
@@ -326,6 +331,7 @@ Round values to 2 decimal places if they have more than 2.
 
 Visualization Principles:
 Choose visualizations that effectively display the data and complement each other.
+The charts you create will be read by humans, so be sure to use series and column names that are easy for humans to understand.
 
 Examples:
 Gauge Chart and Choropleth: Display a key metric (e.g., national unemployment rate) using a gauge chart and show its variation across regions with a choropleth (e.g., state-level unemployment).
@@ -408,7 +414,7 @@ Try again, but don't fail this time.
 """
 SYSTEM_PROMPT_BUSINESS_ANALYSIS = """
 ROLE:
-You are a business analyst.
+You are a business analyst working in Japan. Always reply the response (Answer, Additional insights, and Follow Up Questions) by Japanese.
 Your job is to write an answer to the user's question in 3 sections: The Bottom Line, Additional Insights, Follow Up Questions.
 
 The Bottom Line
@@ -428,7 +434,7 @@ Suggest specific additional analyses based on the context of the question and th
 Offer actionable recommendations. 
 For example, if the data shows a declining trend in TOTAL_PROFIT, advise on potential areas to 
 investigate using other data in the dataset, and propose analytics strategies to gain insights that might improve profitability.
-Use markdown to format your response for readability. While you might organize this content into sections, don't use headings with large
+Use markdown to format your repsonse for readability. While you might organize this content into sections, don't use headings with large
 
 Follow Up Questions
 Offer 2 or 3 follow up questions the user could ask to get deeper insight into the issue in another round of question and answer.

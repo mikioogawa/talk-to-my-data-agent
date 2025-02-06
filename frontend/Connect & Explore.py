@@ -88,7 +88,7 @@ def process_uploaded_file(file: UploadedFile) -> list[AnalystDataset]:
             data = cast(list[dict[str, Any]], df.to_dict(orient="records"))
             results.append(AnalystDataset(name=dataset_name, data=data))
             logger.info(
-                f"Loaded CSV {dataset_name}: {len(df)} rows, {len(df.columns)} columns"
+                f"Loaded CSV {dataset_name}: {len(df)} 行, {len(df.columns)} 列"
             )
 
         elif file_extension in [".xlsx", ".xls"]:
@@ -145,7 +145,7 @@ async def process_data_and_update_state(datasets: list[AnalystDataset]) -> None:
     # Add the new (or updated) datasets to the session state
 
     for ds in datasets:
-        st.success(f"✓ {ds.name}: {len(ds.to_df())} rows, {len(ds.columns)} columns")
+        st.success(f"✓ {ds.name}: {len(ds.to_df())} 行, {len(ds.columns)} 列")
 
     # Process the new data
     logger.info("Starting data processing")
@@ -176,11 +176,11 @@ async def process_data_and_update_state(datasets: list[AnalystDataset]) -> None:
 
     except Exception:
         st.warning(
-            "⚠️ Data processed but there were issues generating some dictionaries"
+            "⚠️ データは処理されましたが、一部のデータディクショナリーの生成中に問題が発生しました"
         )
     if len(new_dictionaries) > 0:
-        st.success("✅ Data processed and dictionaries generated successfully!")
-        st.info("View the generated data dictionaries in the Data Dictionary page")
+        st.success("✅ データが正常に処理され、データディクショナリーが生成されました。")
+        st.info("生成されたデータディクショナリーを「データディクショナリーページ」で表示できます")
 
 
 # Add callback for AI Catalog dataset selection
@@ -192,7 +192,7 @@ async def catalog_download_callback() -> None:
     ):
         st.session_state.data_source = DataSource.CATALOG
         with st.sidebar:  # Use sidebar context
-            with st.spinner("Loading selected datasets..."):
+            with st.spinner("選択したデータセットをロード中..."):
                 selected_ids = [
                     ds["id"] for ds in st.session_state.selected_catalog_datasets
                 ]
@@ -210,7 +210,7 @@ async def load_from_database_callback() -> None:
         and st.session_state.selected_schema_tables
     ):
         with st.sidebar:
-            with st.spinner("Loading selected tables..."):
+            with st.spinner("選択したテーブルをロード中..."):
                 dataframes = Database.get_data(*st.session_state.selected_schema_tables)
 
                 if not dataframes:
@@ -225,7 +225,7 @@ async def uploaded_file_callback(uploaded_files: list[UploadedFile]) -> None:
     # Set flag to indicate data source is a file
     st.session_state.data_source = DataSource.FILE
 
-    with st.spinner("Loading and processing files..."):
+    with st.spinner("ファイルの読み込みと処理実行中..."):
         # Process uploaded files
         for file in uploaded_files:
             if file.file_id not in st.session_state.processed_file_ids:
@@ -245,18 +245,18 @@ apply_custom_css()
 async def main() -> None:
     # Sidebar for data upload and processing
     with st.sidebar:
-        st.title("Connect")
+        st.title("データ接続")
 
         # Load Files expander containing file upload and AI Catalog
-        with st.expander("Load Files", expanded=True):
+        with st.expander("ファイルアップロード", expanded=True):
             # File upload section
             col1, col2, col3 = st.columns([1, 4, 2])
             with col1:
                 st.image("csv_File_Logo.svg", width=25)
             with col2:
-                st.write("**Load Data Files**")
+                st.write("**データファイルアップロード**")
             uploaded_files = st.file_uploader(
-                "Select 1 or multiple files",
+                "1つまたは複数のファイルを選択",
                 type=["csv", "xlsx", "xls"],
                 accept_multiple_files=True,
                 disabled=st.session_state.data_source == DataSource.DATABASE,
@@ -266,26 +266,26 @@ async def main() -> None:
                 await uploaded_file_callback(uploaded_files)
 
             # AI Catalog section
-            st.subheader("☁️   DataRobot AI Catalog")
+            st.subheader("☁️   DataRobot AIカタログ")
 
             # Get datasets from catalog
-            with st.spinner("Loading datasets from AI Catalog..."):
+            with st.spinner("AIカタログのデータセットをロード中..."):
                 datasets = [i.model_dump() for i in list_catalog_datasets()]
 
             # Create form for dataset selection
             with st.form("catalog_selection_form", border=False):
                 selected_catalog_datasets = st.multiselect(
-                    "Select datasets from AI Catalog",
+                    "AIカタログからデータセットを選択",
                     options=datasets,
                     format_func=lambda x: f"{x['name']} ({x['size']})",
-                    help="You can select multiple datasets",
+                    help="複数データセットを選択できます",
                     key="selected_catalog_datasets",
                     disabled=st.session_state.data_source == DataSource.DATABASE,
                 )
 
                 # Form submit button
                 submit_button = st.form_submit_button(
-                    "Load Datasets",
+                    "データセットをロード",
                     disabled=st.session_state.data_source == DataSource.DATABASE,
                 )
 
@@ -293,7 +293,7 @@ async def main() -> None:
                 if submit_button and len(selected_catalog_datasets) > 0:
                     await catalog_download_callback()
                 elif submit_button:
-                    st.warning("Please select at least one dataset")
+                    st.warning("少なくとも1つのデータセットを選択してください")
 
         # Database expander
         with st.expander("Database", expanded=False):
@@ -306,7 +306,7 @@ async def main() -> None:
                 selected_schema_tables = st.multiselect(
                     label=get_database_loader_message(app_infra),
                     options=schema_tables,
-                    help="You can select multiple tables",
+                    help="複数データセットを選択できます",
                     key="selected_schema_tables",
                     disabled=st.session_state.data_source is not None
                     and st.session_state.data_source != DataSource.DATABASE,
@@ -314,7 +314,7 @@ async def main() -> None:
 
                 # Form submit button
                 submit_button = st.form_submit_button(
-                    "Load Selected Tables",
+                    "選択したテーブルを読み込む",
                     use_container_width=False,
                     disabled=st.session_state.data_source is not None
                     and st.session_state.data_source != DataSource.DATABASE,
@@ -322,13 +322,13 @@ async def main() -> None:
 
                 if submit_button:
                     if len(selected_schema_tables) == 0:
-                        st.warning("Please select at least one table")
+                        st.warning("少なくとも1つのデータセットを選択してください")
                     else:
                         await load_from_database_callback()
 
         # Add Clear Data button after the Database expander
         st.sidebar.button(
-            "Clear Data",
+            "データクリア",
             on_click=clear_data_callback,
             type="secondary",
             use_container_width=False,
@@ -336,11 +336,11 @@ async def main() -> None:
 
     # Main content area
     st.image(get_page_logo(), width=200)
-    st.title("Explore")
+    st.title("探索")
 
     # Main content area - conditional rendering based on cleansed data
     if not st.session_state.datasets:
-        st.info("Upload and process your data using the sidebar to get started")
+        st.info("サイドバーを使用してデータをアップロードして処理を開始してください")
     else:
         st.session_state.datasets = cast(
             list[AnalystDataset], st.session_state.datasets
@@ -359,7 +359,7 @@ async def main() -> None:
                 )
 
                 # Display cleaning report in expander
-                with st.expander("View Cleaning Report"):
+                with st.expander("クリーニングレポートの表示"):
                     # Group reports by conversion type
                     conversions: defaultdict[str, list[CleansedColumnReport]] = (
                         defaultdict(list)
@@ -371,7 +371,7 @@ async def main() -> None:
 
                     # Display summary of changes
                     if conversions:
-                        st.write("### Summary of Changes")
+                        st.write("### 変更点のサマリー")
                         for conv_type, reports in conversions.items():
                             columns_count = len(reports)
                             st.write(
@@ -382,11 +382,11 @@ async def main() -> None:
                                     st.markdown(f"### {report.new_column_name}")
                                     if report.original_column_name:
                                         st.write(
-                                            f"Original name: `{report.original_column_name}`"
+                                            f"元名: `{report.original_column_name}`"
                                         )
                                     if report.original_dtype:
                                         st.write(
-                                            f"Type conversion: `{report.original_dtype}` → `{report.new_dtype}`"
+                                            f"型変換: `{report.original_dtype}` → `{report.new_dtype}`"
                                         )
 
                                     # Show warnings if any
@@ -401,16 +401,16 @@ async def main() -> None:
                                         for error in report.errors:
                                             st.markdown(f"- {error}")
                     else:
-                        st.info("No columns were modified during cleaning")
+                        st.info("クリーニング中に列は変更されませんでした")
 
                     # Show unchanged columns
                     unchanged = [r for r in cleaning_report if not r.conversion_type]
                     if unchanged:
-                        st.write("### Unchanged Columns")
+                        st.write("### 変更されなかった列")
                         st.write(", ".join(f"`{r.new_column_name}`" for r in unchanged))
 
             except StopIteration:
-                st.warning("No cleaning report available for this dataset")
+                st.warning("このデータセットのクリーニングレポートはありません")
 
             # Display dataframe with column filters
             df_display = ds_display.to_df()
@@ -419,14 +419,14 @@ async def main() -> None:
             col1, col2 = st.columns([3, 1])
             with col1:
                 search = st.text_input(
-                    "Search columns",
+                    "列選択",
                     key=f"search_{ds_display.name}",
-                    help="Filter columns by name",
+                    help="列名でフィルター",
                 )
             with col2:
                 n_rows = int(
                     st.number_input(
-                        "Rows to display",
+                        "表示する行数",
                         min_value=1,
                         max_value=len(df_display),
                         value=min(10, len(df_display)),
@@ -451,7 +451,7 @@ async def main() -> None:
             with col1:
                 csv = df_display.to_csv(index=False)
                 st.download_button(
-                    label="Download Cleansed Data",
+                    label="クレンジングされたデータをダウンロード",
                     data=csv,
                     file_name=f"{ds_display.name}_cleansed.csv",
                     mime="text/csv",
