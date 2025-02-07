@@ -70,7 +70,7 @@ Codespacesユーザーは**ステップ1と2をスキップ**できます。ロ�
 
 ## Architecture overview
 
-![image](https://github.com/user-attachments/assets/2ca66231-9321-48fe-abdb-f2d35687dff6)
+![Image](https://github.com/user-attachments/assets/60f788c0-c017-4092-aa7c-b047afdd9d5f)
 
 
 アプリテンプレートには、3つの補完的なロジックファミリーが含まれています:
