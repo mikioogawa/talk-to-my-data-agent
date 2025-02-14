@@ -30,10 +30,10 @@ from app_settings import (
     PAGE_ICON,
     DataSource,
     apply_custom_css,
+    display_page_logo,
     get_database_loader_message,
     get_database_logo,
 )
-
 from helpers import state_empty, state_init
 
 from utils.api import (
